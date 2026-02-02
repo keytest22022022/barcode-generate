@@ -1,60 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Barcode Print Generator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barcode Print Generator</title>
 
-    <!-- JsBarcode -->
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
+<style>
+body {
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    padding: 12px;
+}
 
-        .controls {
-            margin-bottom: 20px;
-        }
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+}
 
-        input, button {
-            padding: 6px;
-            font-size: 16px;
-        }
+input, button {
+    font-size: 18px;
+    padding: 10px;
+    width: 100%;
+}
 
-        .barcode-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 barcodes per row */
-            gap: 15px;
-        }
+button {
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+}
 
-        .barcode-item {
-            text-align: center;
-            border: 1px solid #000;
-            padding: 10px;
-        }
+.barcode-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+}
 
-        svg {
-            width: 100%;
-            height: auto;
-        }
+.barcode-item {
+    border: 1px solid #000;
+    padding: 6px;
+    text-align: center;
+    background: #fff;
+}
 
-        /* Print only barcodes */
-        @media print {
-            .controls {
-                display: none;
-            }
+svg {
+    width: 100%;
+    height: auto;
+}
 
-            body {
-                padding: 0;
-            }
+/* Desktop/tablet */
+@media (min-width: 768px) {
+    input, button {
+        width: auto;
+        flex: 1;
+    }
+}
 
-            .barcode-item {
-                page-break-inside: avoid;
-            }
-        }
-    </style>
+/* PRINT MODE */
+@media print {
+    .controls {
+        display: none;
+    }
+
+    body {
+        padding: 0;
+    }
+
+    .barcode-container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .barcode-item {
+        page-break-inside: avoid;
+    }
+}
+</style>
 </head>
+
 <body>
 
 <div class="controls">
@@ -62,6 +93,7 @@
         type="text"
         id="barcodeInput"
         placeholder="Scan or type barcode"
+        inputmode="numeric"
         oninput="autoGenerate()"
         autofocus
     >
@@ -73,46 +105,44 @@
         min="1"
         oninput="autoGenerate()"
     >
+
     <button onclick="window.print()">Print</button>
 </div>
 
 <div class="barcode-container" id="barcodeContainer"></div>
 
 <script>
-let debounceTimer = null;
+let debounceTimer;
 
 function autoGenerate() {
     clearTimeout(debounceTimer);
 
     debounceTimer = setTimeout(() => {
-        const value = document.getElementById('barcodeInput').value.trim();
-        const count = parseInt(document.getElementById('countInput').value);
-        const container = document.getElementById('barcodeContainer');
+        const value = barcodeInput.value.trim();
+        const count = parseInt(countInput.value);
+        const container = barcodeContainer;
 
         container.innerHTML = '';
-
         if (!value || count <= 0) return;
 
         for (let i = 0; i < count; i++) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'barcode-item';
+            const item = document.createElement('div');
+            item.className = 'barcode-item';
 
             const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
-            wrapper.appendChild(svg);
-            container.appendChild(wrapper);
+            item.appendChild(svg);
+            container.appendChild(item);
 
             JsBarcode(svg, value, {
                 format: "CODE128",
-                lineColor: "#000",
                 width: 2,
-                height: 60,
+                height: 50,
                 displayValue: true,
-                fontSize: 14,
-                margin: 5
+                fontSize: 12,
+                margin: 4
             });
         }
-    }, 150); // delay for smooth typing
+    }, 120);
 }
 </script>
 
