@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Barcode Print Generator</title>
+
+    <!-- JsBarcode -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        input, button {
+            padding: 6px;
+            font-size: 16px;
+        }
+
+        .barcode-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 barcodes per row */
+            gap: 15px;
+        }
+
+        .barcode-item {
+            text-align: center;
+            border: 1px solid #000;
+            padding: 10px;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Print only barcodes */
+        @media print {
+            .controls {
+                display: none;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            .barcode-item {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="controls">
+    <input
+        type="text"
+        id="barcodeInput"
+        placeholder="Scan or type barcode"
+        oninput="autoGenerate()"
+        autofocus
+    >
+
+    <input
+        type="number"
+        id="countInput"
+        value="100"
+        min="1"
+        oninput="autoGenerate()"
+    >
+    <button onclick="window.print()">Print</button>
+</div>
+
+<div class="barcode-container" id="barcodeContainer"></div>
+
+<script>
+let debounceTimer = null;
+
+function autoGenerate() {
+    clearTimeout(debounceTimer);
+
+    debounceTimer = setTimeout(() => {
+        const value = document.getElementById('barcodeInput').value.trim();
+        const count = parseInt(document.getElementById('countInput').value);
+        const container = document.getElementById('barcodeContainer');
+
+        container.innerHTML = '';
+
+        if (!value || count <= 0) return;
+
+        for (let i = 0; i < count; i++) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'barcode-item';
+
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+            wrapper.appendChild(svg);
+            container.appendChild(wrapper);
+
+            JsBarcode(svg, value, {
+                format: "CODE128",
+                lineColor: "#000",
+                width: 2,
+                height: 60,
+                displayValue: true,
+                fontSize: 14,
+                margin: 5
+            });
+        }
+    }, 150); // delay for smooth typing
+}
+</script>
+
+</body>
+</html>
