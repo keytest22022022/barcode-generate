@@ -1,2 +1,2 @@
 Site Url:
-https://t.me/c/1585049917/2161
+https://keytest22022022.github.io/barcode-generate/
